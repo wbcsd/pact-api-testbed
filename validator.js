@@ -11,6 +11,8 @@ import { LogLevel, Logger } from "./logger.js";
 import { v4 as UUID } from "uuid";
 import { formatToIso8601String } from "./date-utils.js";
 import { StubPathfinderServer } from "./stub.js";
+import Path from "path";
+import { fileURLToPath } from "url";
 
 /**
  * @typedef {object} PathfinderValidatorSetting
@@ -373,6 +375,10 @@ export class PathfinderValidator {
             ]
         };
 
+        function specFilePath(specVersion) {
+            return Path.join(Path.dirname(fileURLToPath(import.meta.url)), "spec", "pathfinder-"+specVersion+".yaml");
+        }
+
         if(eventsSupport) {
             let stubServer = new StubPathfinderServer({
                 contextPath: stubContextPath,
@@ -390,7 +396,7 @@ export class PathfinderValidator {
             stubServer.on("data", requestBody => {
                 if(requestBody.type == "org.wbcsd.pathfinder.ProductFootprintRequest.Fulfilled.v1") {
                     let footprints = requestBody.data.pfs;
-                    let validator = new Validator("spec/pathfinder-"+specVersion+".yaml");
+                    let validator = new Validator(specFilePath(specVersion));
                     let schema = validator.getComponent("#/components/schemas/ProductFootprint");
                     if(schema == null) {
                         throw new Error("Components could not be read.");
@@ -411,7 +417,7 @@ export class PathfinderValidator {
             });
         }
 
-        let validator = new Validator("spec/pathfinder-"+specVersion+".yaml", testSet, logSetting, verboseLog);
+        let validator = new Validator(specFilePath(specVersion), testSet, logSetting, verboseLog);
         await validator.validate();
     }
 }

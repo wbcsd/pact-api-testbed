@@ -45,7 +45,10 @@ stubData:
 |stubContextPath|Action Events requires two-way communication. Setting the context path here will start the HTTP server with the configured protocol and port. The application under test should be able to respond to this context path when responding to requests.|
 |stubData/*|If you want to set a fixed value for ProductFootprint when responding to an Action Events request, specify the ProductFootprint property under `stubData`.|
 
+
 ## Test
+
+Set the YAML file created in [Test Settings](#test-settings) to the setting argument as shown below and execute it.
 
 ```sh
 npx @mill6-plat6aux/pathfinder-testbed --setting test.yaml
