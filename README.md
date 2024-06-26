@@ -11,6 +11,13 @@ However there is still variation in the implementation levels since the specific
 **⚠️Please note that passing a test does not imply any kind of official approval.**
 
 
+## Required environment
+
+* Node.js 18.0 later
+
+If Node.js is not installed on your system, see [here](https://nodejs.org/en/learn/getting-started/how-to-install-nodejs).
+
+
 ## Test Settings
 
 The Tech-Spec-implemented application under test can be connected to via HTTPS. Its endpoints, authentication information, etc. are described in the following YAML.
@@ -49,6 +56,14 @@ stubData:
 
 
 ## Test
+
+To run this tool, use npx.
+
+If you want to install it in the current directory beforehand, run the following command. (if it is not installed, npx will ask you if you want to install it.)
+
+```sh
+npm install @mill6-plat6aux/pathfinder-testbed
+```
 
 Set the YAML file created in [Test Settings](#test-settings) to the setting argument as shown below and execute it.
 
