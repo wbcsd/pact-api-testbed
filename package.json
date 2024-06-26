@@ -1,0 +1,18 @@
+{
+  "name": "@mill6-plat6aux/pathfinder-testbed",
+  "version": "0.9.0",
+  "description": "Unauthorized Pathfinder implementation application testing tool",
+  "main": "index.js",
+  "bin": {
+    "testbed": "index.js"
+  },
+  "type": "module",
+  "author": "Takuro Okada",
+  "license": "MIT",
+  "dependencies": {
+    "inquirer": "^9.2.23",
+    "js-yaml": "^4.1.0",
+    "lupinus": "^0.9.1",
+    "uuid": "^10.0.0"
+  }
+}
