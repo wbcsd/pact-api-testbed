@@ -11,8 +11,10 @@ import Inquirer from "inquirer";
 import { readFileSync, readdirSync } from "fs";
 import { PathfinderValidator } from "./validator.js";
 import YAML from "js-yaml";
+import Path from "path";
+import { fileURLToPath } from "url";
 
-let specs = readdirSync("spec");
+let specs = readdirSync(Path.join(Path.dirname(fileURLToPath(import.meta.url)), "spec"));
 let versions = specs
     .map(spec => spec.substring("pathfinder-".length, spec.lastIndexOf(".")))
     .sort((ver1, ver2) => ver1 < ver2 ? 1 : (ver1 > ver2 ? -1 : 0));

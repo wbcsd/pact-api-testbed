@@ -48,7 +48,7 @@ stubData:
 ## Test
 
 ```sh
-npx install @mill6-plat6aux/pathfinder-testbed --setting test.yaml
+npx @mill6-plat6aux/pathfinder-testbed --setting test.yaml
 ```
 
 
