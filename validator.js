@@ -108,20 +108,42 @@ export class PathfinderValidator {
         let host = new URL(authContextPath+authPath).hostname;
 
         // Attempt to authenticate with incorrect credentials
+        logger.writeLog(`Test [Authenticate with incorrect credentials] is started.`);
         let incorrectUserName = this.randomString(16);
         let incorrectPassword = this.randomString(16);
-        response = await Http.request("post", authContextPath + authPath, {
+        let incorrectRequestHeaders = {
             host: host,
             accept: "application/json",
             "content-type": "application/x-www-form-urlencoded",
             authorization: "Basic " + Buffer.from(incorrectUserName+":"+incorrectPassword).toString("base64")
-        }, {
+        };
+        let incorrectRequestBody = {
             "grant_type": "client_credentials"
-        });
+        };
+        if(verboseLog) {
+            logger.writeLog(`post ${authContextPath + authPath}`);
+            logger.writeLog(`REQUEST:`);
+            logger.writeLog(JSON.stringify(incorrectRequestHeaders));
+            logger.writeLog(JSON.stringify(incorrectRequestBody));
+        }
+        response = await Http.request("post", authContextPath + authPath, incorrectRequestHeaders, incorrectRequestBody);
         if(response.status == 200) {
             logger.writeLog(`\u001b[31mNG\u001b[0m Success response was obtained despite incorrect credentials. USERNAME: ${incorrectUserName} PASSWORD: ${incorrectPassword} URL: ${authContextPath + authPath}`);
             return;
         }
+        if(verboseLog) {
+            logger.writeLog(`RESPONSE:`);
+            logger.writeLog(`Status: ${response.status}`);
+            logger.writeLog(JSON.stringify(response.headers));
+            if(response.body instanceof Buffer) {
+                logger.writeLog(response.body.toString("utf8"));
+            }else if(typeof response.body == "string") {
+                logger.writeLog(response.body);
+            }else {
+                logger.writeLog(JSON.stringify(response.body));
+            }
+        }
+        logger.writeLog(`\u001b[32mPASS\u001b[0m post ${authContextPath + authPath}`);
 
         // OAuth 2.0 Clinet Credential Grant
         response = await Http.request("post", authContextPath + authPath, {
