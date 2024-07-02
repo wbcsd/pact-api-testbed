@@ -107,6 +107,22 @@ export class PathfinderValidator {
         
         let host = new URL(authContextPath+authPath).hostname;
 
+        // Attempt to authenticate with incorrect credentials
+        let incorrectUserName = this.randomString(16);
+        let incorrectPassword = this.randomString(16);
+        response = await Http.request("post", authContextPath + authPath, {
+            host: host,
+            accept: "application/json",
+            "content-type": "application/x-www-form-urlencoded",
+            authorization: "Basic " + Buffer.from(incorrectUserName+":"+incorrectPassword).toString("base64")
+        }, {
+            "grant_type": "client_credentials"
+        });
+        if(response.status == 200) {
+            logger.writeLog(`\u001b[31mNG\u001b[0m Success response was obtained despite incorrect credentials. USERNAME: ${incorrectUserName} PASSWORD: ${incorrectPassword} URL: ${authContextPath + authPath}`);
+            return;
+        }
+
         // OAuth 2.0 Clinet Credential Grant
         response = await Http.request("post", authContextPath + authPath, {
             host: host,
@@ -121,6 +137,10 @@ export class PathfinderValidator {
             return;
         }
         let accessToken = response.body.access_token;
+        if(accessToken == null) {
+            logger.writeLog(`\u001b[31mNG\u001b[0m Access token is empty. URL: ${authContextPath + authPath}`);
+            return;
+        }
 
         let pathPrefex;
         if(specVersion.startsWith("1")) {
@@ -371,6 +391,49 @@ export class PathfinderValidator {
                             }))
                         }
                     ]
+                },
+                {
+                    title: "Illegal access token",
+                    contextPath: dataContextPath,
+                    sequence: [
+                        {
+                            path: pathPrefex + "/footprints",
+                            method: "get",
+                            request: {
+                                headers: {
+                                    host: host,
+                                    authorization: "Bearer " + this.randomString(32)
+                                }
+                            },
+                            response: {
+                                status: 403,
+                                body: "{code = AccessDenied}"
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Incorrect specific footprint request",
+                    contextPath: dataContextPath,
+                    sequence: [
+                        {
+                            path: pathPrefex + "/footprints/{PfId}",
+                            method: "get",
+                            request: {
+                                headers: {
+                                    host: host,
+                                    authorization: "Bearer " + accessToken
+                                },
+                                body: {
+                                    PfId: UUID()
+                                }
+                            },
+                            response: {
+                                status: 404,
+                                body: "{code = NoSuchFootprint}"
+                            }
+                        }
+                    ]
                 }
             ]
         };
@@ -419,5 +482,18 @@ export class PathfinderValidator {
 
         let validator = new Validator(specFilePath(specVersion), testSet, logSetting, verboseLog);
         await validator.validate();
+    }
+
+    /**
+     * @param {number} length 
+     * @returns {string}
+     */
+    static randomString(length) {
+        let variation = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let string = "";
+        for(let i=0; i<length; i++) {
+            string += variation[Math.floor(Math.random()*variation.length)];
+        }
+        return string;
     }
 }
