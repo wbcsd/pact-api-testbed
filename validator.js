@@ -28,6 +28,7 @@ import { fileURLToPath } from "url";
  * @property {boolean} verboseLog
  * @property {string} stubContextPath
  * @property {import("./stub.js").StubFootprint} [stubData]
+ * @property {string} [userAgent]
  */
 
 export class PathfinderValidator {
@@ -49,6 +50,7 @@ export class PathfinderValidator {
         let verboseLog = setting.verboseLog;
         let stubContextPath = setting.stubContextPath;
         let stubData = setting.stubData;
+        let userAgent = setting.userAgent;
 
         if(specVersion == null) {
             throw new Error("The specVersion is not specified.");
@@ -99,7 +101,12 @@ export class PathfinderValidator {
         let authPath = "/auth/token";
 
         // OpenID Connect Discovery
-        response = await Http.request("get", authContextPath + "/.well-known/openid-configuration");
+        let discoveryHeaders;
+        if(userAgent != null) {
+            if(discoveryHeaders == null) discoveryHeaders = {};
+            discoveryHeaders["user-agent"] = userAgent;
+        }
+        response = await Http.request("get", authContextPath + "/.well-known/openid-configuration", discoveryHeaders);
         if(response.status == 200 && response.body != null && response.body.token_endpoint != null) {
             authContextPath = "";
             authPath = response.body.token_endpoint;
@@ -111,22 +118,25 @@ export class PathfinderValidator {
         logger.writeLog(`Test [Authenticate with incorrect credentials] is started.`);
         let incorrectUserName = this.randomString(16);
         let incorrectPassword = this.randomString(16);
-        let incorrectRequestHeaders = {
+        let incorrectAuthHeaders = {
             host: host,
             accept: "application/json",
             "content-type": "application/x-www-form-urlencoded",
             authorization: "Basic " + Buffer.from(incorrectUserName+":"+incorrectPassword).toString("base64")
         };
+        if(userAgent != null) {
+            incorrectAuthHeaders["user-agent"] = userAgent;
+        }
         let incorrectRequestBody = {
             "grant_type": "client_credentials"
         };
         if(verboseLog) {
             logger.writeLog(`post ${authContextPath + authPath}`);
             logger.writeLog(`REQUEST:`);
-            logger.writeLog(JSON.stringify(incorrectRequestHeaders));
+            logger.writeLog(JSON.stringify(incorrectAuthHeaders));
             logger.writeLog(JSON.stringify(incorrectRequestBody));
         }
-        response = await Http.request("post", authContextPath + authPath, incorrectRequestHeaders, incorrectRequestBody);
+        response = await Http.request("post", authContextPath + authPath, incorrectAuthHeaders, incorrectRequestBody);
         if(response.status == 200) {
             logger.writeLog(`\u001b[31mNG\u001b[0m Success response was obtained despite incorrect credentials. USERNAME: ${incorrectUserName} PASSWORD: ${incorrectPassword} URL: ${authContextPath + authPath}`);
             return;
@@ -146,12 +156,16 @@ export class PathfinderValidator {
         logger.writeLog(`\u001b[32mPASS\u001b[0m post ${authContextPath + authPath}`);
 
         // OAuth 2.0 Clinet Credential Grant
-        response = await Http.request("post", authContextPath + authPath, {
+        let authHeaders = {
             host: host,
             accept: "application/json",
             "content-type": "application/x-www-form-urlencoded",
             authorization: "Basic " + Buffer.from(userName+":"+password).toString("base64")
-        }, {
+        };
+        if(userAgent != null) {
+            authHeaders["user-agent"] = userAgent;
+        }
+        response = await Http.request("post", authContextPath + authPath, authHeaders, {
             "grant_type": "client_credentials"
         });
         if(response.status != 200) {
@@ -174,10 +188,14 @@ export class PathfinderValidator {
         }
 
         // Footprints acquisition
-        response = await Http.request("get", dataContextPath + pathPrefex + "/footprints", {
+        let footprintsHeaders = {
             host: host,
             authorization: "Bearer " + accessToken
-        });
+        };
+        if(userAgent != null) {
+            footprintsHeaders["user-agent"] = userAgent;
+        }
+        response = await Http.request("get", dataContextPath + pathPrefex + "/footprints", footprintsHeaders);
         if(response.status != 200 && response.status != 202) {
             logger.writeLog(`\u001b[31mNG\u001b[0m Footprints acquisition failed. STATUS: ${response.status} URL: ${dataContextPath + pathPrefex + "/footprints"}`);
             return;
@@ -235,7 +253,8 @@ export class PathfinderValidator {
                             request: {
                                 headers: {
                                     host: host,
-                                    authorization: "Bearer " + accessToken
+                                    authorization: "Bearer " + accessToken,
+                                    "user-agent": userAgent
                                 }
                             },
                             response: {
@@ -254,7 +273,8 @@ export class PathfinderValidator {
                             request: {
                                 headers: {
                                     host: host,
-                                    authorization: "Bearer " + accessToken
+                                    authorization: "Bearer " + accessToken,
+                                    "user-agent": userAgent
                                 },
                                 body: {
                                     "$filter": `created ge ${createdVariation[0]}`
@@ -279,7 +299,8 @@ export class PathfinderValidator {
                             request: {
                                 headers: {
                                     host: host,
-                                    authorization: "Bearer " + accessToken
+                                    authorization: "Bearer " + accessToken,
+                                    "user-agent": userAgent
                                 },
                                 body: {
                                     "$filter": `productIds/any(productId:(productId eq '${productIdsVariation[0]}'))`
@@ -304,7 +325,8 @@ export class PathfinderValidator {
                             request: {
                                 headers: {
                                     host: host,
-                                    authorization: "Bearer " + accessToken
+                                    authorization: "Bearer " + accessToken,
+                                    "user-agent": userAgent
                                 },
                                 body: {
                                     limit: 1
@@ -331,7 +353,8 @@ export class PathfinderValidator {
                             request: {
                                 headers: {
                                     host: host,
-                                    authorization: "Bearer " + accessToken
+                                    authorization: "Bearer " + accessToken,
+                                    "user-agent": userAgent
                                 },
                                 body: {
                                     PfId: footprints[0].id
@@ -355,7 +378,8 @@ export class PathfinderValidator {
                                 headers: {
                                     host: host,
                                     authorization: "Bearer " + accessToken,
-                                    "content-type": "application/cloudevents+json; charset=UTF-8"
+                                    "content-type": "application/cloudevents+json; charset=UTF-8",
+                                    "user-agent": userAgent
                                 },
                                 body: {
                                     type: "org.wbcsd.pathfinder.ProductFootprint.Published.v1",
@@ -388,7 +412,8 @@ export class PathfinderValidator {
                                 headers: {
                                     host: host,
                                     authorization: "Bearer " + accessToken,
-                                    "content-type": "application/cloudevents+json; charset=UTF-8"
+                                    "content-type": "application/cloudevents+json; charset=UTF-8",
+                                    "user-agent": userAgent
                                 },
                                 body: {
                                     type: "org.wbcsd.pathfinder.ProductFootprintRequest.Created.v1",
@@ -424,7 +449,8 @@ export class PathfinderValidator {
                             request: {
                                 headers: {
                                     host: host,
-                                    authorization: "Bearer " + this.randomString(32)
+                                    authorization: "Bearer " + this.randomString(32),
+                                    "user-agent": userAgent
                                 }
                             },
                             response: {
@@ -444,7 +470,8 @@ export class PathfinderValidator {
                             request: {
                                 headers: {
                                     host: host,
-                                    authorization: "Bearer " + accessToken
+                                    authorization: "Bearer " + accessToken,
+                                    "user-agent": userAgent
                                 },
                                 body: {
                                     PfId: UUID()
