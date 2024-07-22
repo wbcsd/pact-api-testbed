@@ -283,7 +283,8 @@ export class PathfinderValidator {
                                 }
                             },
                             response: (filterSupport ? ({
-                                status: 200
+                                status: 200,
+                                body: `{data[*].created >= '${createdVariation[0]}'}`
                             }) : ({
                                 status: 400,
                                 body: "{code = NotImplemented}"
@@ -309,7 +310,8 @@ export class PathfinderValidator {
                                 }
                             },
                             response: (filterSupport ? ({
-                                status: 200
+                                status: 200,
+                                body: `{'${productIdsVariation[0]}' in data[*].productIds}`
                             }) : ({
                                 status: 400,
                                 body: "{code = NotImplemented}"
