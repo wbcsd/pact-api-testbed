@@ -186,6 +186,8 @@ export class PathfinderValidator {
         }else {
             throw new Error("Invalid specVersion.");
         }
+        
+        host = new URL(dataContextPath + pathPrefex + "/footprints").hostname;
 
         // Footprints acquisition
         let footprintsHeaders = {
