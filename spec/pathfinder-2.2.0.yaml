@@ -475,25 +475,20 @@ components:
           maximum: 100
           exclusiveMinimum: 5
         technologicalDQR:
-          type: number
-          minimum: 1
-          maximum: 3
+          type: string
+          pattern: '^[0-9]+(\.[0-9]+)*$'
         temporalDQR:
-          type: number
-          minimum: 1
-          maximum: 3
+          type: string
+          pattern: '^[0-9]+(\.[0-9]+)*$'
         geographicalDQR:
-          type: number
-          minimum: 1
-          maximum: 3
+          type: string
+          pattern: '^[0-9]+(\.[0-9]+)*$'
         completenessDQR:
-          type: number
-          minimum: 1
-          maximum: 3
+          type: string
+          pattern: '^[0-9]+(\.[0-9]+)*$'
         reliabilityDQR:
-          type: number
-          minimum: 1
-          maximum: 3
+          type: string
+          pattern: '^[0-9]+(\.[0-9]+)*$'
       required:
         - coveragePercent
         - technologicalDQR
