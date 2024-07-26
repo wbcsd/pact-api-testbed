@@ -466,8 +466,8 @@ components:
       properties:
         coveragePercent:
           type: number
+          minimum: 0
           maximum: 100
-          exclusiveMinimum: 0
         technologicalDQR:
           type: string
           pattern: '^[0-9]+(\.[0-9]+)*$'
@@ -483,13 +483,6 @@ components:
         reliabilityDQR:
           type: string
           pattern: '^[0-9]+(\.[0-9]+)*$'
-      required:
-        - coveragePercent
-        - technologicalDQR
-        - temporalDQR
-        - geographicalDQR
-        - completenessDQR
-        - reliabilityDQR
     Assurance:
       title: Assurance
       type: object
