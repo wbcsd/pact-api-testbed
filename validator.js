@@ -366,7 +366,7 @@ export class PathfinderValidator {
                             },
                             response: {
                                 status: 200,
-                                body: "{data.id == "+footprints[0].id+"}"
+                                body: "{data.id = '"+footprints[0].id+"'}"
                             }
                         }
                     ]
