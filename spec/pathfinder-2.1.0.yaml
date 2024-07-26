@@ -322,12 +322,6 @@ components:
           enum:
             - AR6
             - AR5
-          description: DEPRECATED
-        ipccCharacterizationFactorsSources:
-          type: array
-          items:
-            type: string
-            pattern: '^AR[0-9]{1,}$'
         crossSectoralStandardsUsed:
           type: array
           items:
@@ -425,7 +419,6 @@ components:
         - fossilCarbonContent
         - biogenicCarbonContent
         - characterizationFactors
-        - ipccCharacterizationFactorsSources
         - crossSectoralStandardsUsed
         - boundaryProcessesDescription
         - referencePeriodStart
