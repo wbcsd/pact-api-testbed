@@ -473,7 +473,7 @@ components:
         coveragePercent:
           type: number
           maximum: 100
-          exclusiveMinimum: 5
+          exclusiveMinimum: 0
         technologicalDQR:
           type: string
           pattern: '^[0-9]+(\.[0-9]+)*$'

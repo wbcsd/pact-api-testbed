@@ -1,6 +1,6 @@
 {
   "name": "@mill6-plat6aux/pathfinder-testbed",
-  "version": "0.9.12",
+  "version": "0.9.13",
   "description": "Unauthorized Pathfinder implementation application testing tool",
   "main": "index.js",
   "bin": {
@@ -12,7 +12,7 @@
   "dependencies": {
     "inquirer": "^9.2.23",
     "js-yaml": "^4.1.0",
-    "lupinus": "^0.9.9",
+    "lupinus": "^0.9.10",
     "uuid": "^10.0.0"
   },
   "publishConfig": {
