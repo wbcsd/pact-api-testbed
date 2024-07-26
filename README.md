@@ -51,6 +51,7 @@ stubData:
 |limitSupport|Set to `true` if the application under test implements the `limit` request parameter in Action ListFootprints.|
 |eventsSupport|Set to `true` if the application under test implements Action Events.|
 |log|Destination for output of test results. If `stdout` is selected, the result will be displayed in the standard output. If `file` is selected, the result will be output to the current directory as `result.log`.|
+|userAgent|Set if UserAgent is required in the HTTP header of the request.|
 |stubContextPath|Action Events requires two-way communication. Setting the context path here will start the HTTP server with the configured protocol and port. The application under test should be able to respond to this context path when responding to requests.|
 |stubData/*|If you want to set a fixed value for ProductFootprint when responding to an Action Events request, specify the ProductFootprint property under `stubData`.|
 
