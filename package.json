@@ -1,6 +1,6 @@
 {
   "name": "@mill6-plat6aux/pathfinder-testbed",
-  "version": "0.9.17",
+  "version": "0.9.18",
   "description": "Unauthorized Pathfinder implementation application testing tool",
   "main": "index.js",
   "bin": {

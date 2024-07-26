@@ -287,7 +287,7 @@ export class PathfinderValidator {
                                 body: `{data[*].created >= '${createdVariation[0]}'}`
                             }) : ({
                                 status: 400,
-                                body: "{code = NotImplemented}"
+                                body: "{code = 'NotImplemented'}"
                             }))
                         }
                     ]
@@ -314,7 +314,7 @@ export class PathfinderValidator {
                                 body: `{'${productIdsVariation[0]}' in data[*].productIds}`
                             }) : ({
                                 status: 400,
-                                body: "{code = NotImplemented}"
+                                body: "{code = 'NotImplemented'}"
                             }))
                         }
                     ]
@@ -342,7 +342,7 @@ export class PathfinderValidator {
                                 body: "{data.length == 1}"
                             }) : ({
                                 status: 400,
-                                body: "{code = NotImplemented}"
+                                body: "{code = 'NotImplemented'}"
                             }))
                         }
                     ]
@@ -400,7 +400,7 @@ export class PathfinderValidator {
                                 status: 200
                             }) : ({
                                 status: 400,
-                                body: "{code = NotImplemented}"
+                                body: "{code = 'NotImplemented'}"
                             }))
                         }
                     ]
@@ -438,7 +438,7 @@ export class PathfinderValidator {
                                 status: 200
                             }) : ({
                                 status: 400,
-                                body: "{code = NotImplemented}"
+                                body: "{code = 'NotImplemented'}"
                             }))
                         }
                     ]
@@ -459,7 +459,7 @@ export class PathfinderValidator {
                             },
                             response: {
                                 status: 403,
-                                body: "{code = AccessDenied}"
+                                body: "{code = 'AccessDenied'}"
                             }
                         }
                     ]
@@ -483,7 +483,7 @@ export class PathfinderValidator {
                             },
                             response: {
                                 status: 404,
-                                body: "{code = NoSuchFootprint}"
+                                body: "{code = 'NoSuchFootprint'}"
                             }
                         }
                     ]
