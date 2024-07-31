@@ -458,8 +458,8 @@ export class PathfinderValidator {
                                 }
                             },
                             response: {
-                                status: 403,
-                                body: "{code = 'AccessDenied'}"
+                                status: 400,
+                                body: "{code = 'BadRequest'}"
                             }
                         }
                     ]
