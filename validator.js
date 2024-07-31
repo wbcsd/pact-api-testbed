@@ -352,7 +352,7 @@ export class PathfinderValidator {
                     contextPath: dataContextPath,
                     sequence: [
                         {
-                            path: pathPrefex + "/footprints/{PfId}",
+                            path: pathPrefex + "/footprints/{id}",
                             method: "get",
                             request: {
                                 headers: {
@@ -361,7 +361,7 @@ export class PathfinderValidator {
                                     "user-agent": userAgent
                                 },
                                 body: {
-                                    PfId: footprints[0].id
+                                    id: footprints[0].id
                                 }
                             },
                             response: {
@@ -469,7 +469,7 @@ export class PathfinderValidator {
                     contextPath: dataContextPath,
                     sequence: [
                         {
-                            path: pathPrefex + "/footprints/{PfId}",
+                            path: pathPrefex + "/footprints/{id}",
                             method: "get",
                             request: {
                                 headers: {
@@ -478,7 +478,7 @@ export class PathfinderValidator {
                                     "user-agent": userAgent
                                 },
                                 body: {
-                                    PfId: UUID()
+                                    id: UUID()
                                 }
                             },
                             response: {

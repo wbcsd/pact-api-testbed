@@ -78,12 +78,11 @@ paths:
           in: query
           name: limit
       description: Lists product footprints with pagination and optional filtering.
-  '/2/footprints/{PfId}':
+  '/2/footprints/{id}':
     parameters:
       - schema:
           type: string
-          format: uuid
-        name: PfId
+        name: id
         in: path
         required: true
     get:
