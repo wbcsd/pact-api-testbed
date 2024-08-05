@@ -468,20 +468,15 @@ components:
           minimum: 0
           maximum: 100
         technologicalDQR:
-          type: string
-          pattern: '^[0-9]+(\.[0-9]+)*$'
+          type: number
         temporalDQR:
-          type: string
-          pattern: '^[0-9]+(\.[0-9]+)*$'
+          type: number
         geographicalDQR:
-          type: string
-          pattern: '^[0-9]+(\.[0-9]+)*$'
+          type: number
         completenessDQR:
-          type: string
-          pattern: '^[0-9]+(\.[0-9]+)*$'
+          type: number
         reliabilityDQR:
-          type: string
-          pattern: '^[0-9]+(\.[0-9]+)*$'
+          type: number
     Assurance:
       title: Assurance
       type: object
