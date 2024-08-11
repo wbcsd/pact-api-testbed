@@ -54,6 +54,7 @@ stubData:
 |userAgent|Set if UserAgent is required in the HTTP header of the request.|
 |stubContextPath|Action Events requires two-way communication. Setting the context path here will start the HTTP server with the configured protocol and port. The application under test should be able to respond to this context path when responding to requests.|
 |stubData/*|If you want to set a fixed value for ProductFootprint when responding to an Action Events request, specify the ProductFootprint property under `stubData`.|
+|keepStub|If set to `true`, the stub server will not terminate when the test case ends. This can be used when sending Action Events from the application under test and verifying the request data.|
 
 
 ## Test

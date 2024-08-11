@@ -52,7 +52,11 @@ if(settingFile != null) {
         process.exit(1);
     }
     PathfinderValidator.validate(setting).then(() => {
-        process.exit(0);
+        if(setting.keepStub == undefined || !setting.keepStub) {
+            process.exit(0);
+        }else {
+            console.log("Control+C to exit.");
+        }
     }).catch(error => {
         console.error(error.message, error.stack);
         process.exit(1);
