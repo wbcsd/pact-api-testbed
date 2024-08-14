@@ -126,15 +126,15 @@ export class StubPathfinderServer extends EventEmitter {
     async handleAuthenticate(request, response) {
         let authorization = request.headers.authorization;
         if(authorization == null) {
-            throw new Error("The authorization header of the request is invalid.");
+            throw new Error("The authorization header of the request is empty.");
         }
         if(!authorization.startsWith("Basic ")) {
-            throw new Error("The authorization header of the request is invalid.");
+            throw new Error(`The authorization header of the request is invalid. ${authorization}`);
         }
         authorization = authorization.substring("Basic ".length).trim();
         let credentials = Buffer.from(authorization, "base64").toString("utf8").split(":");
         if(credentials.length != 2) {
-            throw new Error("The authorization header of the request is invalid.");
+            throw new Error(`The authorization header of the request is invalid. ${authorization}`);
         }
         await this.retrieveRequest(request);
         let responseBody = {token_type: "Bearer", access_token: this.generateJwtToken()};
@@ -147,10 +147,10 @@ export class StubPathfinderServer extends EventEmitter {
     handleAuthorization(request) {
         let authorization = request.headers.authorization;
         if(authorization == null) {
-            throw new Error("The authorization header of the request is invalid.");
+            throw new Error("The authorization header of the request is empty.");
         }
         if(!authorization.startsWith("Bearer ")) {
-            throw new Error("The authorization header of the request is invalid.");
+            throw new Error(`The authorization header of the request is invalid. ${authorization}`);
         }
         authorization = authorization.substring("Bearer ".length).trim();
         this.verifyJwtToken(authorization);
@@ -167,8 +167,7 @@ export class StubPathfinderServer extends EventEmitter {
             let responseBody = {data: this.generateFootprint(pfId)};
             this.handleJson(response, responseBody);
         }else {
-            let pfId = request.url.substring(request.url.lastIndexOf("/")+1);
-            let responseBody = {data: [this.generateFootprint(pfId)]};
+            let responseBody = {data: [this.generateFootprint()]};
             this.handleJson(response, responseBody);
         }
     }
@@ -205,6 +204,8 @@ export class StubPathfinderServer extends EventEmitter {
         if(requestBody.source == null) {
             throw new Error("The source of the request is invalid.");
         }
+
+        this.#logger.writeLog(`REQUEST: \n${JSON.stringify(requestBody, null, 4)}.`);
 
         if(requestBody.type == "org.wbcsd.pathfinder.ProductFootprint.Published.v1") {
             this.handleSuccess(response);
@@ -263,7 +264,7 @@ export class StubPathfinderServer extends EventEmitter {
                 type: "org.wbcsd.pathfinder.ProductFootprintRequest.Fulfilled.v1",
                 specversion: "1.0",
                 id: UUID(),
-                source: this.#contextPath,
+                source: this.#contextPath + "/2/events",
                 data: {
                     requestEventId: eventId,
                     pfs: [footprint]
@@ -339,6 +340,7 @@ export class StubPathfinderServer extends EventEmitter {
      * @param {Http.ServerResponse} response 
      */
     handleSuccess(response) {
+        this.#logger.writeLog(`The stub server returned a success response.`);
         response.writeHead(200);
         response.write("OK");
         response.end();
@@ -349,6 +351,7 @@ export class StubPathfinderServer extends EventEmitter {
      * @param {object} responseBody
      */
     handleJson(response, responseBody) {
+        this.#logger.writeLog(`The stub server returned a success response.\nRESPONSE:\n${JSON.stringify(responseBody, null, 4)}`);
         responseBody = JSON.stringify(responseBody); 
         response.writeHead(200, {
             "content-type": "application/json",
@@ -363,10 +366,13 @@ export class StubPathfinderServer extends EventEmitter {
      * @param {Error} error 
      */
     handleInternalServerError(response, error) {
-        let responseBody = JSON.stringify({
+        /** @type {object|string} */
+        let responseBody = {
             code: "InternalError",
             message: error.message
-        });
+        };
+        this.#logger.writeLog(`The stub server returned an error response.\nRESPONSE:\n${JSON.stringify(responseBody, null, 4)}`);
+        responseBody = JSON.stringify(responseBody);
         response.writeHead(500, {
             "content-type": "application/json",
             "content-length": Buffer.byteLength(responseBody, "utf8")
@@ -380,6 +386,7 @@ export class StubPathfinderServer extends EventEmitter {
      */
     handleNotFoundError(response) {
         let responseBody = "Not Found";
+        this.#logger.writeLog(`The stub server returned an error response.\nRESPONSE:\n${responseBody}`);
         response.writeHead(404, {
             "content-type": "text/plain",
             "content-length": Buffer.byteLength(responseBody, "utf8")
@@ -393,10 +400,13 @@ export class StubPathfinderServer extends EventEmitter {
      * @param {string} message
      */
     handleBadRequestError(response, message) {
-        let responseBody = JSON.stringify({
+        /** @type {object|string} */
+        let responseBody = {
             code: "BadRequest",
             message: message
-        });
+        };
+        this.#logger.writeLog(`The stub server returned an error response.\nRESPONSE:\n${JSON.stringify(responseBody, null, 4)}`);
+        responseBody = JSON.stringify(responseBody);
         response.writeHead(400, {
             "content-type": "application/json",
             "content-length": Buffer.byteLength(responseBody, "utf8")
@@ -410,10 +420,13 @@ export class StubPathfinderServer extends EventEmitter {
      * @param {string} message
      */
     handleForbiddenError(response, message) {
-        let responseBody = JSON.stringify({
+        /** @type {object|string} */
+        let responseBody = {
             code: "AccessDenied",
             message: message
-        });
+        };
+        this.#logger.writeLog(`The stub server returned an error response.\nRESPONSE:\n${JSON.stringify(responseBody, null, 4)}`);
+        responseBody = JSON.stringify(responseBody);
         response.writeHead(403, {
             "content-type": "application/json",
             "content-length": Buffer.byteLength(responseBody, "utf8")
@@ -428,6 +441,7 @@ export class StubPathfinderServer extends EventEmitter {
      */
     handleUnauthorizedError(response, message) {
         let responseBody = message;
+        this.#logger.writeLog(`The stub server returned an error response.\nRESPONSE:\n${responseBody}`);
         response.writeHead(401, {
             "content-type": "text/plain",
             "content-length": Buffer.byteLength(responseBody, "utf8")
@@ -441,10 +455,13 @@ export class StubPathfinderServer extends EventEmitter {
      * @param {string} message
      */
     handleTokenExpiredError(response, message) {
-        let responseBody = JSON.stringify({
+        /** @type {object|string} */
+        let responseBody = {
             code: "TokenExpired",
             message: message
-        });
+        };
+        this.#logger.writeLog(`The stub server returned an error response.\nRESPONSE:\n${JSON.stringify(responseBody, null, 4)}`);
+        responseBody = JSON.stringify(responseBody);
         response.writeHead(401, {
             "content-type": "application/json",
             "content-length": Buffer.byteLength(responseBody, "utf8")
@@ -474,7 +491,8 @@ export class StubPathfinderServer extends EventEmitter {
             request.on("end", () => {
                 let requestBody = buffer;
                 if(requestBody != null && request.headers["content-type"] != null) {
-                    if(request.headers["content-type"] == "application/json") {
+                    let contentType = request.headers["content-type"];
+                    if(contentType.startsWith("application/json") || contentType.startsWith("application/cloudevents+json")) {
                         if(requestBody instanceof Buffer) {
                             requestBody = JSON.parse(requestBody.toString("utf8"));
                         }else if(typeof requestBody == "string") {
