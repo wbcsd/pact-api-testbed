@@ -86,7 +86,7 @@ export class PathfinderValidator {
             stubContextPath = "http://localhost:3000"
         }
 
-        /** @type {import("lupinus/logger").LoggerSetting} */
+        /** @type {import("lupinus/logger-setting.d.ts").LoggerSetting} */
         let logSetting = {
             threshold: "debug"
         };
@@ -242,7 +242,7 @@ export class PathfinderValidator {
             }
         }
 
-        /** @type {import("lupinus/testset").TestSet} */
+        /** @type {import("lupinus/testset.d.ts").TestSet} */
         let testSet = {
             testCases: [
                 {
@@ -521,8 +521,15 @@ export class PathfinderValidator {
                         try {
                             validator.validateJson(footprint, schema);
                         }catch(error) {
-                            logger.writeLog(`\u001b[31mNG\u001b[0m ${error.message}`);
-                            logger.writeLog(error.stack, LogLevel.debug);
+                            if(error instanceof AggregateError) {
+                                error.errors.forEach(error => {
+                                    logger.writeLog(`\u001b[31mNG\u001b[0m ${error.message}`);
+                                    logger.writeLog(error.stack, LogLevel.debug);
+                                });
+                            }else {
+                                logger.writeLog(`\u001b[31mNG\u001b[0m ${error.message}`);
+                                logger.writeLog(error.stack, LogLevel.debug);
+                            }
                         }
                     });
                 }
