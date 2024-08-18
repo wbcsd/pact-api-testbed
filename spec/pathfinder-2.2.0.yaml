@@ -229,6 +229,7 @@ components:
           type: string
         companyIds:
           type: array
+          minItems: 1
           items:
             type: string
             pattern: '^urn:[a-zA-Z0-9]+([-a-zA-Z0-9]*){0,30}[a-zA-Z0-9]+:[-\._~%!$&''\(\)*+,;:@=a-zA-Z0-9]*[-\._~%!$&''\(\)*+,;:@=/?a-zA-Z0-9]*$'
@@ -236,6 +237,7 @@ components:
           type: string
         productIds:
           type: array
+          minItems: 1
           items:
             type: string
             pattern: '^urn:[a-zA-Z0-9]+([-a-zA-Z0-9]*){0,30}[a-zA-Z0-9]+:[-\._~%!$&''\(\)*+,;:@=a-zA-Z0-9]*[-\._~%!$&''\(\)*+,;:@=/?a-zA-Z0-9]*$'
@@ -324,6 +326,7 @@ components:
           description: DEPRECATED
         ipccCharacterizationFactorsSources:
           type: array
+          minItems: 1
           items:
             type: string
             pattern: '^AR[0-9]{1,}$'
@@ -548,19 +551,20 @@ components:
             - org.wbcsd.pathfinder.ProductFootprint.Published.v1
         specversion:
           type: string
+          description: CloudEvents version.
         id:
           type: string
-          format: uuid
+          description: Event identifier. Must be able to uniquely identify the event by source and id.
         source:
           type: string
-          pattern: '^https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
+          description: The domain and endpoint of the application from which the event originates.
+          pattern: '^\/\/[-a-zA-Z0-9@:%._\+~#=]+\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]+$'
         time:
           type: string
           format: date-time
+          description: The time the event occurred.
         data:
           type: object
-          required:
-            - pf
           properties:
             pfIds:
               type: array
@@ -584,15 +588,18 @@ components:
             - org.wbcsd.pathfinder.ProductFootprintRequest.Created.v1
         specversion:
           type: string
+          description: CloudEvents version.
         id:
           type: string
-          format: uuid
+          description: Event identifier. Must be able to uniquely identify the event by source and id.
         source:
           type: string
-          pattern: '^https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
+          description: The domain and endpoint of the application from which the event originates.
+          pattern: '^\/\/[-a-zA-Z0-9@:%._\+~#=]+\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]+$'
         time:
           type: string
           format: date-time
+          description: The time the event occurred.
         data:
           type: object
           required:
@@ -620,15 +627,18 @@ components:
             - org.wbcsd.pathfinder.ProductFootprintRequest.Fulfilled.v1
         specversion:
           type: string
+          description: CloudEvents version.
         id:
           type: string
-          format: uuid
+          description: Event identifier. Must be able to uniquely identify the event by source and id.
         source:
           type: string
-          pattern: '^https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
+          description: The domain and endpoint of the application from which the event originates.
+          pattern: '^\/\/[-a-zA-Z0-9@:%._\+~#=]+\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]+$'
         time:
           type: string
           format: date-time
+          description: The time the event occurred.
         data:
           type: object
           required:
@@ -658,15 +668,18 @@ components:
             - org.wbcsd.pathfinder.ProductFootprintRequest.Rejected.v1
         specversion:
           type: string
+          description: CloudEvents version.
         id:
           type: string
-          format: uuid
+          description: Event identifier. Must be able to uniquely identify the event by source and id.
         source:
           type: string
-          pattern: '^https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$'
+          description: The domain and endpoint of the application from which the event originates.
+          pattern: '^\/\/[-a-zA-Z0-9@:%._\+~#=]+\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]+$'
         time:
           type: string
           format: date-time
+          description: The time the event occurred.
         data:
           type: object
           required:
