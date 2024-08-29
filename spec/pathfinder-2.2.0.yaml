@@ -314,7 +314,7 @@ components:
           pattern: '^[0-9]+(\.[0-9]+)*$'
         biogenicCarbonWithdrawal:
           type: string
-          pattern: '^[0-9]+(\.[0-9]+)*$'
+          pattern: '^-?[0-9]+(\.[0-9]+)*$'
         aircraftGhgEmissions:
           type: string
           pattern: '^[0-9]+(\.[0-9]+)*$'
@@ -479,14 +479,24 @@ components:
           minimum: 0
         technologicalDQR:
           type: number
+          minimum: 1
+          maximum: 3
         temporalDQR:
           type: number
+          minimum: 1
+          maximum: 3
         geographicalDQR:
           type: number
+          minimum: 1
+          maximum: 3
         completenessDQR:
           type: number
+          minimum: 1
+          maximum: 3
         reliabilityDQR:
           type: number
+          minimum: 1
+          maximum: 3
     Assurance:
       title: Assurance
       type: object
