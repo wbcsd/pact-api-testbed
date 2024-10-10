@@ -1,22 +1,29 @@
-# Pathfinder TESTBED
+# About the PACT API Testbed
 
-The Pathfinder Framework is proposed by WBCSD/PACT and defines the methodology for accounting carbon footprints. A carbon footprint can be categorized into which related to own company and to other companies, and the common interface between the applications used by own company and other companies makes more efficient for carbon footprint calculation related to other companies. Specifications for PCF Data Exchange (Tech Spec) defines that interface.
+The [PACT](https://carbon-transparency.org) Methodology and Network by [WBCSD](https://wbcsd.org) defines a way to  calculate and exchange product carbon footprints between companies in supply chains. The data model and API for this data exchange (the PACT Network) are described in the [PACT Technical Specifications](https://github.com/wbcsd/data-exchange-protocol)
 
-Applications implementing the Tech Spec generally can exchange data peer-to-peer, on the other hand the differences in implementation levels would prevent successful data exchange. Therefore, in order to demonstrate that each application is of a certain standard, application vendors conduct a mutual conformance approval process by testing each other, and publish the results in the PACT web site.
+Software solutions implementing these specs should be able to  exchange data peer-to-peer. However, by its nature, the footprint data will differ between companies and industries. Also, software solution providers have certain amount of freedom in choosing what parts of the specification to implement.
 
-However there is still variation in the implementation levels since the specific testing process is not defined in the above mutual approval process and each vendor conducts testing from their own perspective. In order to make this situation more rigorous to Tech Spec, I have created a testing tool. With this tool, certain tests can be performed automatically.
+Therefore, in order to demonstrate that a software implementation is of a certain standard, application vendors conduct a mutual conformance approval process by testing each other, and publish the results in the PACT web site. This tool was built by Takuro Okada to facilitate and automate a large part of this process.
 
-**⚠️This software is not WBCSD/PACT approved.**
+## PACT Adoption
 
-**⚠️Please note that passing a test does not imply any kind of official approval.**
+Per the PACT Network Contribution Policy this tool has been adopted in October 2024 by the PACT community and will now be maintained on the WBCSD GitHub.
 
 
-## Required environment
+## Status: Open BETA
+
+PACT aims to use the API Testbed as the official conformance testing tool beginning of 2025. 
+We strongly recommend using this tool right now as an aid in verifying PACT conformance.
+
+
+## Requirements
 
 * Node.js 18.0 later
 
 If Node.js is not installed on your system, see [here](https://nodejs.org/en/learn/getting-started/how-to-install-nodejs).
 
+The test tool will make calls TO the API implementation to be tested, but will also expect incoming calls FROM the implementation. Please make sure any firewall settings accomodate for that. 
 
 ## Test Settings
 
@@ -64,13 +71,13 @@ To run this tool, use npx.
 If you want to install it in the current directory beforehand, run the following command. (if it is not installed, npx will ask you if you want to install it.)
 
 ```sh
-npm install @mill6-plat6aux/pathfinder-testbed
+npm install @wbcsd/pact-api-testbed
 ```
 
 Set the YAML file created in [Test Settings](#test-settings) to the setting argument as shown below and execute it.
 
 ```sh
-npx @mill6-plat6aux/pathfinder-testbed --setting test.yaml
+npx @wbcsd/pact-api-testbed --setting test.yaml
 ```
 
 
