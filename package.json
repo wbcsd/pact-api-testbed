@@ -1,13 +1,29 @@
 {
-  "name": "@mill6-plat6aux/pathfinder-testbed",
+  "name": "@wbcsd/pact-api-testbed",
   "version": "0.9.26",
-  "description": "Unauthorized Pathfinder implementation application testing tool",
+  "description": "WBCSD PACT API conformance testing tool.",
+  "keywords": [
+    "wbcsd",
+    "pact",
+    "api",
+    "test",
+    "conformance",
+    "testing",
+    "tool"
+  ],
   "main": "index.js",
   "bin": {
     "testbed": "index.js"
   },
   "type": "module",
   "author": "Takuro Okada",
+  "contributors": [
+    "Gertjan Schuurmans <schuurmans@wbcsd.org> (https://www.wbcsd.org/)",
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wbcsd/pact-api-testbed.git"
+  },
   "license": "MIT",
   "dependencies": {
     "inquirer": "^9.2.23",
@@ -15,6 +31,7 @@
     "lupinus": "^0.9.13",
     "uuid": "^10.0.0"
   },
+  "homepage": "https://github.com/wbcsd/pact-api-testbed#readme",
   "publishConfig": {
     "access": "public"
   }
