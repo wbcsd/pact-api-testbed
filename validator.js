@@ -11,8 +11,8 @@ import { LogLevel, Logger } from "./logger.js";
 import { v4 as UUID } from "uuid";
 import { formatToIso8601String } from "./date-utils.js";
 import { StubPathfinderServer } from "./stub.js";
-import Path from "path";
-import { fileURLToPath } from "url";
+import { getFile } from "./github.js";
+import YAML from "js-yaml";
 
 /**
  * @typedef {object} PathfinderValidatorSetting
@@ -491,8 +491,13 @@ export class PathfinderValidator {
             ]
         };
 
-        function specFilePath(specVersion) {
-            return Path.join(Path.dirname(fileURLToPath(import.meta.url)), "spec", "pathfinder-"+specVersion+".yaml");
+        /**
+         * @param {string} specVersion 
+         * @returns {Promise<object>}
+         */
+        async function specFile(specVersion) {
+            let file = await getFile("wbcsd", "pact-openapi", `pact-openapi-${specVersion}.yaml`);
+            return YAML.load(file.toString());
         }
 
         if(eventsSupport) {
@@ -512,25 +517,27 @@ export class PathfinderValidator {
             stubServer.on("data", requestBody => {
                 if(requestBody.type == "org.wbcsd.pathfinder.ProductFootprintRequest.Fulfilled.v1") {
                     let footprints = requestBody.data.pfs;
-                    let validator = new Validator(specFilePath(specVersion));
-                    let schema = validator.getComponent("#/components/schemas/ProductFootprint");
-                    if(schema == null) {
-                        throw new Error("Components could not be read.");
-                    }
-                    footprints.forEach(footprint => {
-                        try {
-                            validator.validateJson(footprint, schema);
-                        }catch(error) {
-                            if(error instanceof AggregateError) {
-                                error.errors.forEach(error => {
+                    specFile(specVersion).then(spec => {
+                        let validator = new Validator(spec);
+                        let schema = validator.getComponent("#/components/schemas/ProductFootprint");
+                        if(schema == null) {
+                            throw new Error("Components could not be read.");
+                        }
+                        footprints.forEach(footprint => {
+                            try {
+                                validator.validateJson(footprint, schema);
+                            }catch(error) {
+                                if(error instanceof AggregateError) {
+                                    error.errors.forEach(error => {
+                                        logger.writeLog(`\u001b[31mNG\u001b[0m ${error.message}`);
+                                        logger.writeLog(error.stack, LogLevel.debug);
+                                    });
+                                }else {
                                     logger.writeLog(`\u001b[31mNG\u001b[0m ${error.message}`);
                                     logger.writeLog(error.stack, LogLevel.debug);
-                                });
-                            }else {
-                                logger.writeLog(`\u001b[31mNG\u001b[0m ${error.message}`);
-                                logger.writeLog(error.stack, LogLevel.debug);
+                                }
                             }
-                        }
+                        });
                     });
                 }
             });
@@ -540,7 +547,8 @@ export class PathfinderValidator {
             });
         }
 
-        let validator = new Validator(specFilePath(specVersion), testSet, logSetting, verboseLog);
+        let spec = await specFile(specVersion);
+        let validator = new Validator(spec, testSet, logSetting, verboseLog);
         await validator.validate();
     }
 
