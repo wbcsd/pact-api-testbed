@@ -28,7 +28,9 @@ export async function getFileList(owner, repository, path) {
     if(response.body == null || !Array.isArray(response.body)) {
         throw new Error(`The file list retrieved from GitHub was not an array. Body:${response.body}`);
     }
-    return response.body.filter(entry => entry.type == "file" && !entry.name.startsWith(".")).map(entry => entry.name);
+    return response.body
+        .filter(entry => entry.type == "file" && /pact-openapi-\d+\.\d+\.\d+\.yaml/.test(entry.name))
+        .map(entry => entry.name);
 }
 
 /**
