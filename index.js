@@ -8,18 +8,12 @@
 // @ts-check
 
 import Inquirer from "inquirer";
-import { readFileSync, readdirSync } from "fs";
+import { readFileSync } from "fs";
 import { PathfinderValidator } from "./validator.js";
 import YAML from "js-yaml";
-import Path from "path";
-import { fileURLToPath } from "url";
+import { getFileList } from "./github.js";
 
-let specs = readdirSync(Path.join(Path.dirname(fileURLToPath(import.meta.url)), "spec"));
-let versions = specs
-    .map(spec => spec.substring("pathfinder-".length, spec.lastIndexOf(".")))
-    .sort((ver1, ver2) => ver1 < ver2 ? 1 : (ver1 > ver2 ? -1 : 0));
-
-let settingFile;
+let settingFilePath;
 
 if(process.argv.length > 2) {
     let args = process.argv;
@@ -34,35 +28,71 @@ if(process.argv.length > 2) {
             }
             if(value == null) continue;
             if(key == "setting") {
-                settingFile = value;
+                settingFilePath = value;
             }
         }
     }
 }
 
-if(settingFile != null) {
+getFileList("wbcsd", "pact-openapi").then(specs => {
+    if(specs.length == 0) {
+        console.error(`None of the valid specification files could be loaded, please contact PACT.`);
+        process.exit(1);
+    }
+    let versions = specs
+        .map(spec => spec.substring("pact-openapi-".length, spec.lastIndexOf(".")))
+        .sort((ver1, ver2) => ver1 < ver2 ? 1 : (ver1 > ver2 ? -1 : 0));
+    if(settingFilePath != null) {
+        executeWithSettingFile(settingFilePath, versions);
+    }else {
+        executeWithCli(versions);
+    }
+}).catch(error => {
+    console.error(error.message, error.stack);
+    process.exit(1);
+});
+
+/**
+ * @param {string} settingFilePath 
+ * @param {Array<string>} versions Versions of technical specifications
+ * @returns {Promise}
+ */
+async function executeWithSettingFile(settingFilePath, versions) {
     let setting;
-    if(settingFile.endsWith(".json")) {
-        setting = JSON.parse(readFileSync(settingFile, "utf8"));
-    }else if(settingFile.endsWith(".yaml")) {
-        setting = YAML.load(readFileSync(settingFile, "utf8"));
+    if(settingFilePath.endsWith(".json")) {
+        setting = JSON.parse(readFileSync(settingFilePath, "utf8"));
+    }else if(settingFilePath.endsWith(".yaml")) {
+        setting = YAML.load(readFileSync(settingFilePath, "utf8"));
     }
     if(setting == null) {
         console.error("The setting argument is invalid.");
         process.exit(1);
     }
-    PathfinderValidator.validate(setting).then(() => {
+
+    if(setting.version == null) {
+        throw new Error("The specVersion is not specified.");
+    }else if(!versions.includes(setting.version)) {
+        throw new Error(`The specified version [${setting.version}] is not supported.`);
+    }
+    
+    try {
+        await PathfinderValidator.validate(setting);
         if(setting.keepStub == undefined || !setting.keepStub) {
             process.exit(0);
         }else {
             console.log("Control+C to exit.");
         }
-    }).catch(error => {
+    }catch(error) {
         console.error(error.message, error.stack);
         process.exit(1);
-    });
-}else {
-    Inquirer.prompt([
+    }
+}
+
+/**
+ * @param {Array<string>} versions Versions of technical specifications
+ */
+async function executeWithCli(versions) {
+    let setting = await Inquirer.prompt([
         {
             name: "version",
             message: "Pathfinder version",
@@ -123,12 +153,16 @@ if(settingFile != null) {
             type: "input",
             default: "http://localhost:3000"
         }
-    ]).then(setting => {
-        PathfinderValidator.validate(setting).then(() => {
+    ]);
+    try {
+        await PathfinderValidator.validate(setting);
+        if(setting.keepStub == undefined || !setting.keepStub) {
             process.exit(0);
-        }).catch(error => {
-            console.error(error.message, error.stack);
-            process.exit(1);
-        });
-    });
+        }else {
+            console.log("Control+C to exit.");
+        }
+    }catch(error) {
+        console.error(error.message, error.stack);
+        process.exit(1);
+    }
 }

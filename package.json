@@ -1,6 +1,6 @@
 {
   "name": "@wbcsd/pact-api-testbed",
-  "version": "0.9.26",
+  "version": "0.9.27",
   "description": "WBCSD PACT API conformance testing tool.",
   "keywords": [
     "wbcsd",
@@ -28,7 +28,7 @@
   "dependencies": {
     "inquirer": "^9.2.23",
     "js-yaml": "^4.1.0",
-    "lupinus": "^0.9.13",
+    "lupinus": "^0.9.14",
     "uuid": "^10.0.0"
   },
   "homepage": "https://github.com/wbcsd/pact-api-testbed#readme",
