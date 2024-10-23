@@ -124,10 +124,7 @@ if (setting.url == null) {
 } 
 
 // Load the OpenAPI specification
-console.log("OpenAPI specification: " + setting.url);
 setting.spec = YAML.load(await loadTextResource(setting.url));
-console.log("The OpenAPI specification has been loaded.");
-console.log(setting.spec);
 
 try {
     await PathfinderValidator.validate(setting);
