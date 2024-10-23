@@ -11,25 +11,25 @@ import { LogLevel, Logger } from "./logger.js";
 import { v4 as UUID } from "uuid";
 import { formatToIso8601String } from "./date-utils.js";
 import { StubPathfinderServer } from "./stub.js";
-import { getFile } from "./github.js";
-import YAML from "js-yaml";
+
 
 /**
  * @typedef {object} PathfinderValidatorSetting
- * @property {string} version
- * @property {string} authContextPath
- * @property {string} userName
- * @property {string} password
- * @property {string} dataContextPath
- * @property {boolean} filterSupport
- * @property {boolean} limitSupport
- * @property {boolean} eventsSupport
- * @property {"stdout"|"file"} log
- * @property {boolean} verboseLog
- * @property {string} stubContextPath
- * @property {import("./stub.js").StubFootprint} [stubData]
- * @property {string} [userAgent]
+ * @property {object} spec              // OpenAPI specification
+ * @property {string} authContextPath   // Authentication context path
+ * @property {string} userName          // User name
+ * @property {string} password          // Password
+ * @property {string} dataContextPath   //  Data context path
+ * @property {boolean} filterSupport    // Filter support
+ * @property {boolean} limitSupport     // Limit support
+ * @property {boolean} eventsSupport    // Events support
+ * @property {"stdout"|"file"} log      // Log output
+ * @property {boolean} verboseLog       // Verbose log output
+ * @property {string} stubContextPath   // Stub context path
+ * @property {import("./stub.js").StubFootprint} [stubData]     // Stub data
+ * @property {string} [userAgent]       // User agent
  */
+
 
 export class PathfinderValidator {
 
@@ -38,7 +38,7 @@ export class PathfinderValidator {
      * @returns {Promise}
      */
     static async validate(setting) {
-        let specVersion = setting.version;
+        let spec = setting.spec;
         let authContextPath = setting.authContextPath;
         let userName = setting.userName;
         let password = setting.password;
@@ -52,9 +52,7 @@ export class PathfinderValidator {
         let stubData = setting.stubData;
         let userAgent = setting.userAgent;
 
-        if(specVersion == null) {
-            throw new Error("The specVersion is not specified.");
-        }
+
         if(authContextPath == null) {
             throw new Error("The authContextPath is not specified.");
         }
@@ -179,9 +177,9 @@ export class PathfinderValidator {
         }
 
         let pathPrefex;
-        if(specVersion.startsWith("1")) {
+        if(spec.info.version.startsWith("1")) {
             pathPrefex = "/0";
-        }else if(specVersion.startsWith("2")) {
+        }else if(spec.info.version.startsWith("2")) {
             pathPrefex = "/2";
         }else {
             throw new Error("Invalid specVersion.");
@@ -491,15 +489,6 @@ export class PathfinderValidator {
             ]
         };
 
-        /**
-         * @param {string} specVersion 
-         * @returns {Promise<object>}
-         */
-        async function specFile(specVersion) {
-            let file = await getFile("wbcsd", "pact-openapi", `pact-openapi-${specVersion}.yaml`);
-            return YAML.load(file.toString());
-        }
-
         if(eventsSupport) {
             let stubServer = new StubPathfinderServer({
                 contextPath: stubContextPath,
@@ -517,27 +506,25 @@ export class PathfinderValidator {
             stubServer.on("data", requestBody => {
                 if(requestBody.type == "org.wbcsd.pathfinder.ProductFootprintRequest.Fulfilled.v1") {
                     let footprints = requestBody.data.pfs;
-                    specFile(specVersion).then(spec => {
-                        let validator = new Validator(spec);
-                        let schema = validator.getComponent("#/components/schemas/ProductFootprint");
-                        if(schema == null) {
-                            throw new Error("Components could not be read.");
-                        }
-                        footprints.forEach(footprint => {
-                            try {
-                                validator.validateJson(footprint, schema);
-                            }catch(error) {
-                                if(error instanceof AggregateError) {
-                                    error.errors.forEach(error => {
-                                        logger.writeLog(`\u001b[31mNG\u001b[0m ${error.message}`);
-                                        logger.writeLog(error.stack, LogLevel.debug);
-                                    });
-                                }else {
+                    let validator = new Validator(spec);
+                    let schema = validator.getComponent("#/components/schemas/ProductFootprint");
+                    if(schema == null) {
+                        throw new Error("Components could not be read.");
+                    }
+                    footprints.forEach(footprint => {
+                        try {
+                            validator.validateJson(footprint, schema);
+                        }catch(error) {
+                            if(error instanceof AggregateError) {
+                                error.errors.forEach(error => {
                                     logger.writeLog(`\u001b[31mNG\u001b[0m ${error.message}`);
                                     logger.writeLog(error.stack, LogLevel.debug);
-                                }
+                                });
+                            }else {
+                                logger.writeLog(`\u001b[31mNG\u001b[0m ${error.message}`);
+                                logger.writeLog(error.stack, LogLevel.debug);
                             }
-                        });
+                        }
                     });
                 }
             });
@@ -547,7 +534,6 @@ export class PathfinderValidator {
             });
         }
 
-        let spec = await specFile(specVersion);
         let validator = new Validator(spec, testSet, logSetting, verboseLog);
         await validator.validate();
     }
