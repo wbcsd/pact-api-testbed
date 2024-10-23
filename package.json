@@ -1,6 +1,6 @@
 {
   "name": "@wbcsd/pact-api-testbed",
-  "version": "0.9.27",
+  "version": "0.9.28",
   "description": "WBCSD PACT API conformance testing tool.",
   "keywords": [
     "wbcsd",
