@@ -49,7 +49,8 @@ stubData:
 
 |Key|Setting contents|
 |--|--|
-|version|The version of the Tech Spec that the application under test implements.|
+|version|The version of the PACT Tech Spec to test against.|
+|url|URL to a custom OpenAPI schema, if no version is specified. Can be a `http(s)://` or local `file://` resource.|
 |authContextPath|Context path of Action Authenticate. Usually, this context path plus `/auth/token` becomes the endpoint. If OpenID Connect Discovery is supported, this context path plus `/.well-known/openid-configuration` is accessed to determine the authentication method.|
 |userName|Username to use in Action Authenticate.|
 |password|Password to use in Action Authenticate.|

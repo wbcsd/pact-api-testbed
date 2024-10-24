@@ -11,54 +11,27 @@ import Inquirer from "inquirer";
 import { readFileSync } from "fs";
 import { PathfinderValidator } from "./validator.js";
 import YAML from "js-yaml";
-import { getFileList } from "./github.js";
+import { loadTextResource, getFileList } from "./github.js";
+
+const WBCSD_PACT_OPENAPI_URL = "https://raw.githubusercontent.com/wbcsd/pact-openapi/main/";
 
 let settingFilePath;
 
-if(process.argv.length > 2) {
-    let args = process.argv;
-    for(let i=2; i<args.length; i++) {
-        let argument = args[i];
-        if(argument.startsWith("--") && argument.length > 1) {
-            let key = argument.substring(2);
-            let value;
-            if(i<args.length-1) {
-                value = args[i+1];
-                i++;
-            }
-            if(value == null) continue;
-            if(key == "setting") {
-                settingFilePath = value;
-            }
+for (let i=2; i<process.argv.length; i++) {
+    let arg = process.argv[i];
+    if (arg === "--setting") {
+        i++;
+        if (i >= process.argv.length) {
+            throw new Error("Expecting file name after --setting."); 
         }
+        settingFilePath = process.argv[i];
     }
 }
 
-getFileList("wbcsd", "pact-openapi").then(specs => {
-    if(specs.length == 0) {
-        console.error(`None of the valid specification files could be loaded, please contact PACT.`);
-        process.exit(1);
-    }
-    let versions = specs
-        .map(spec => spec.substring("pact-openapi-".length, spec.lastIndexOf(".")))
-        .sort((ver1, ver2) => ver1 < ver2 ? 1 : (ver1 > ver2 ? -1 : 0));
-    if(settingFilePath != null) {
-        executeWithSettingFile(settingFilePath, versions);
-    }else {
-        executeWithCli(versions);
-    }
-}).catch(error => {
-    console.error(error.message, error.stack);
-    process.exit(1);
-});
+let setting;
 
-/**
- * @param {string} settingFilePath 
- * @param {Array<string>} versions Versions of technical specifications
- * @returns {Promise}
- */
-async function executeWithSettingFile(settingFilePath, versions) {
-    let setting;
+if (settingFilePath != null)
+{
     if(settingFilePath.endsWith(".json")) {
         setting = JSON.parse(readFileSync(settingFilePath, "utf8"));
     }else if(settingFilePath.endsWith(".yaml")) {
@@ -68,31 +41,17 @@ async function executeWithSettingFile(settingFilePath, versions) {
         console.error("The setting argument is invalid.");
         process.exit(1);
     }
-
-    if(setting.version == null) {
-        throw new Error("The specVersion is not specified.");
-    }else if(!versions.includes(setting.version)) {
-        throw new Error(`The specified version [${setting.version}] is not supported.`);
-    }
-    
-    try {
-        await PathfinderValidator.validate(setting);
-        if(setting.keepStub == undefined || !setting.keepStub) {
-            process.exit(0);
-        }else {
-            console.log("Control+C to exit.");
-        }
-    }catch(error) {
-        console.error(error.message, error.stack);
+} else
+{
+    let specs = await getFileList("wbcsd", "pact-openapi")
+    if (specs.length == 0) {
+        console.error(`None of the valid specification files could be loaded, please contact PACT.`);
         process.exit(1);
     }
-}
-
-/**
- * @param {Array<string>} versions Versions of technical specifications
- */
-async function executeWithCli(versions) {
-    let setting = await Inquirer.prompt([
+    let versions = specs
+            .map(spec => spec.substring("pact-openapi-".length, spec.lastIndexOf(".")))
+            .sort((ver1, ver2) => ver1 < ver2 ? 1 : (ver1 > ver2 ? -1 : 0));
+    setting = await Inquirer.prompt([
         {
             name: "version",
             message: "Pathfinder version",
@@ -194,7 +153,6 @@ async function executeWithCli(versions) {
             when: answer => answer.stubDataEnabled
         }
     ]);
-    
     delete setting.stubDataEnabled;
     if(setting.stubData != null) {
         if(setting.stubData.companyIds != null && setting.stubData.companyIds.length > 0) {
@@ -208,16 +166,28 @@ async function executeWithCli(versions) {
             delete setting.stubData.productIds;
         }
     }
-    
-    try {
-        await PathfinderValidator.validate(setting);
-        if(setting.keepStub == undefined || !setting.keepStub) {
-            process.exit(0);
-        }else {
-            console.log("Control+C to exit.");
-        }
-    }catch(error) {
-        console.error(error.message, error.stack);
-        process.exit(1);
+}
+
+if ((setting.url != null && setting.version != null) ||
+    (setting.url == null && setting.version == null)) {
+    throw new Error("Provide either the specification URL or a version.");
+}
+if (setting.url == null) {
+    setting.url = `${WBCSD_PACT_OPENAPI_URL}pact-openapi-${setting.version}.yaml`;
+} 
+
+// Load the OpenAPI specification
+setting.spec = YAML.load(await loadTextResource(setting.url));
+
+try {
+    await PathfinderValidator.validate(setting);
+    if(setting.keepStub == undefined || !setting.keepStub) {
+        process.exit(0);
+    }else {
+        console.log("Control+C to exit.");
+
     }
+}catch(error) {
+    console.error(error.message, error.stack);
+    process.exit(1);
 }
