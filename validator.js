@@ -285,7 +285,7 @@ export class PathfinderValidator {
                                 body: `{data[*].created >= '${createdVariation[0]}'}`
                             }) : ({
                                 status: 400,
-                                body: "{code = 'NotImplemented'}"
+                                body: JSON.stringify({code: 'NotImplemented'})
                             }))
                         }
                     ]
@@ -312,7 +312,7 @@ export class PathfinderValidator {
                                 body: `{'${productIdsVariation[0]}' in data[*].productIds}`
                             }) : ({
                                 status: 400,
-                                body: "{code = 'NotImplemented'}"
+                                body: JSON.stringify({code: 'NotImplemented'})
                             }))
                         }
                     ]
@@ -340,7 +340,7 @@ export class PathfinderValidator {
                                 body: "{data.length == 1}"
                             }) : ({
                                 status: 400,
-                                body: "{code = 'NotImplemented'}"
+                                body: JSON.stringify({code: 'NotImplemented'})
                             }))
                         }
                     ]
@@ -364,7 +364,7 @@ export class PathfinderValidator {
                             },
                             response: {
                                 status: 200,
-                                body: "{data.id = '"+footprints[0].id+"'}"
+                                body: JSON.stringify({data: {id: footprints[0].id}})
                             }
                         }
                     ]
@@ -398,7 +398,7 @@ export class PathfinderValidator {
                                 status: 200
                             }) : ({
                                 status: 400,
-                                body: "{code = 'NotImplemented'}"
+                                body: JSON.stringify({code: 'NotImplemented'})
                             }))
                         }
                     ]
@@ -436,8 +436,28 @@ export class PathfinderValidator {
                                 status: 200
                             }) : ({
                                 status: 400,
-                                body: "{code = 'NotImplemented'}"
+                                body: JSON.stringify({code: 'NotImplemented'})
                             }))
+                        }
+                    ]
+                },
+                {
+                    title: "Missing access token",
+                    contextPath: dataContextPath,
+                    sequence: [
+                        {
+                            path: pathPrefex + "/footprints",
+                            method: "get",
+                            request: {
+                                headers: {
+                                    host: host,
+                                    "user-agent": userAgent
+                                }
+                            },
+                            response: {
+                                status: 403,
+                                body: JSON.stringify({code: 'AccessDenied'})
+                            }
                         }
                     ]
                 },
@@ -456,8 +476,8 @@ export class PathfinderValidator {
                                 }
                             },
                             response: {
-                                status: 400,
-                                body: "{code = 'BadRequest'}"
+                                status: 403,
+                                body: JSON.stringify({code: 'AccessDenied'})
                             }
                         }
                     ]
@@ -481,7 +501,7 @@ export class PathfinderValidator {
                             },
                             response: {
                                 status: 404,
-                                body: "{code = 'NoSuchFootprint'}"
+                                body: JSON.stringify({code: 'NoSuchFootprint'})
                             }
                         }
                     ]
